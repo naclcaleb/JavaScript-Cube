@@ -20,7 +20,14 @@ var colors = {
 var NODE_SIZE = 3
 var PIXELS_PER_UNIT = 100
 
+var LIGHT = new Vector(1, -1, -1)
 
+function lerp (start, end, amt){
+    return (1-amt)*start+amt*end
+  }
+
+
+const map = (value, x1, y1, x2, y2) => (value - x1) * (y2 - x2) / (y1 - x1) + x2;
 
 //Some functions to make things easier
 function circle(x, y, radius) {
@@ -112,6 +119,32 @@ class Face {
         return Math.min(this.node1.z, this.node2.z, this.node3.z, this.node3.z, this.node4.z)
     }
 
+    surfaceNormal() {
+
+        //Take the cross product of two vectors
+        var vec1 = new Vector(
+            this.node1.x - this.node2.x,
+            this.node1.y - this.node2.y,
+            this.node1.z - this.node2.z
+        )
+        
+        var vec2 = new Vector(
+            this.node4.x - this.node2.x,
+            this.node4.y - this.node2.y,
+            this.node4.z - this.node2.z
+        )
+
+        ctx.strokeStyle = "green"
+        
+        var surfaceNorm = vec1.cross(vec2).toUnitVector()
+
+        return surfaceNorm
+
+    }
+    alignmentToLight() {
+        return LIGHT.toUnitVector().dot( this.surfaceNormal().toUnitVector() )
+    }
+
 }
 
 
@@ -130,12 +163,16 @@ class Mesh {
         })
 
         for (var i = 0; i < this.faces.length; i++) {
-            ctx.fillStyle = "rgb(0, 0, " + (50 + i * (205 / this.faces.length)) + ")"
+            var alignment = this.faces[i].alignmentToLight()
+            var blueValue = lerp( 0, 255, 0.2 + Math.abs(alignment))
+
+            ctx.fillStyle = "rgb(0, 0, " + blueValue + ")"
+
             this.faces[i].draw()
         }
 
-        for (var i = 0; i < this.edges.length; i++) {
-            //this.edges[i].draw()
+        for (var i = 0; i < this.faces.length; i++) {
+            this.faces[i].surfaceNormal()
         }
 
         for (var i = 0; i < this.nodes.length; i++) {
