@@ -164,9 +164,9 @@ class Mesh {
 
         for (var i = 0; i < this.faces.length; i++) {
             var alignment = this.faces[i].alignmentToLight()
-            var blueValue = lerp( 0, 255, 0.2 + Math.abs(alignment))
+            var greenValue = lerp( 0, 255, 0.2 + Math.max(0, alignment))
 
-            ctx.fillStyle = "rgb(0, 0, " + blueValue + ")"
+            ctx.fillStyle = "rgb(0, " + greenValue + ", 0)"
 
             this.faces[i].draw()
         }
