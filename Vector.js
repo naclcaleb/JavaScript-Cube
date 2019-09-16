@@ -23,12 +23,12 @@ class Vector {
     }
 
     dot(vector) {
-        return this.x * vector.x + this.y * vector.y * this.z * vector.z
+        return this.x * vector.x + this.y * vector.y + this.z * vector.z;
     }
 
     cross(vector) {
         return new Vector(
-            this.x * vector.z - this.z * vector.y,
+            this.y * vector.z - this.z * vector.y,
             this.z * vector.x - this.x * vector.z,
             this.x * vector.y - this.y * vector.x
         )
