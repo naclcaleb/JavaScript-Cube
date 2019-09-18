@@ -20,7 +20,7 @@ var colors = {
 var NODE_SIZE = 3
 var PIXELS_PER_UNIT = 100
 
-var LIGHT = new Vector(1, -1, -1)
+var LIGHT = new Vector(1, -1, -1).toUnitVector();
 
 function lerp (start, end, amt){
     return (1-amt)*start+amt*end
@@ -89,7 +89,6 @@ class Face {
     } 
 
     draw() {
-
         ctx.beginPath()
         ctx.moveTo(this.node1.x * PIXELS_PER_UNIT, this.node1.y * PIXELS_PER_UNIT)
         ctx.lineTo(this.node2.x * PIXELS_PER_UNIT, this.node2.y * PIXELS_PER_UNIT)
@@ -98,21 +97,20 @@ class Face {
         ctx.closePath()
         ctx.fill()
 
-        /*
         //Edges
-        ctx.strokeStyle = colors.edge
-        line(this.node1.x * PIXELS_PER_UNIT, this.node1.y * PIXELS_PER_UNIT, this.node2.x * PIXELS_PER_UNIT, this.node2.y * PIXELS_PER_UNIT)
-        line(this.node2.x * PIXELS_PER_UNIT, this.node2.y * PIXELS_PER_UNIT, this.node3.x * PIXELS_PER_UNIT, this.node3.y * PIXELS_PER_UNIT)
-        line(this.node3.x * PIXELS_PER_UNIT, this.node3.y * PIXELS_PER_UNIT, this.node4.x * PIXELS_PER_UNIT, this.node4.y * PIXELS_PER_UNIT)
-        line(this.node4.x * PIXELS_PER_UNIT, this.node4.y * PIXELS_PER_UNIT, this.node1.x * PIXELS_PER_UNIT, this.node1.y * PIXELS_PER_UNIT)
-
+        // ctx.strokeStyle = colors.edge
+        // line(this.node1.x * PIXELS_PER_UNIT, this.node1.y * PIXELS_PER_UNIT, this.node2.x * PIXELS_PER_UNIT, this.node2.y * PIXELS_PER_UNIT)
+        // line(this.node2.x * PIXELS_PER_UNIT, this.node2.y * PIXELS_PER_UNIT, this.node3.x * PIXELS_PER_UNIT, this.node3.y * PIXELS_PER_UNIT)
+        // line(this.node3.x * PIXELS_PER_UNIT, this.node3.y * PIXELS_PER_UNIT, this.node4.x * PIXELS_PER_UNIT, this.node4.y * PIXELS_PER_UNIT)
+        // line(this.node4.x * PIXELS_PER_UNIT, this.node4.y * PIXELS_PER_UNIT, this.node1.x * PIXELS_PER_UNIT, this.node1.y * PIXELS_PER_UNIT)
+    
         //And the nodes
-        ctx.fillStyle = colors.node
-        circle(this.node1.x * PIXELS_PER_UNIT, this.node1.y * PIXELS_PER_UNIT, NODE_SIZE)
-        circle(this.node2.x * PIXELS_PER_UNIT, this.node2.y * PIXELS_PER_UNIT, NODE_SIZE)
-        circle(this.node3.x * PIXELS_PER_UNIT, this.node3.y * PIXELS_PER_UNIT, NODE_SIZE)
-        circle(this.node4.x * PIXELS_PER_UNIT, this.node4.y * PIXELS_PER_UNIT, NODE_SIZE)
-        */
+        // ctx.fillStyle = colors.node
+        // circle(this.node1.x * PIXELS_PER_UNIT, this.node1.y * PIXELS_PER_UNIT, NODE_SIZE)
+        // circle(this.node2.x * PIXELS_PER_UNIT, this.node2.y * PIXELS_PER_UNIT, NODE_SIZE)
+        // circle(this.node3.x * PIXELS_PER_UNIT, this.node3.y * PIXELS_PER_UNIT, NODE_SIZE)
+        // circle(this.node4.x * PIXELS_PER_UNIT, this.node4.y * PIXELS_PER_UNIT, NODE_SIZE)
+        
     }
 
     nodeWithLeastZ() {
@@ -134,15 +132,12 @@ class Face {
             this.node4.z - this.node2.z
         )
 
-        ctx.strokeStyle = "green"
-        
-        var surfaceNorm = vec1.cross(vec2).toUnitVector()
-
+        var surfaceNorm = vec1.cross(vec2).toUnitVector();
         return surfaceNorm
 
     }
     alignmentToLight() {
-        return LIGHT.toUnitVector().dot( this.surfaceNormal().toUnitVector() )
+        return Math.max(0, LIGHT.dot(this.surfaceNormal()));
     }
 
 }
@@ -164,9 +159,9 @@ class Mesh {
 
         for (var i = 0; i < this.faces.length; i++) {
             var alignment = this.faces[i].alignmentToLight()
-            var greenValue = lerp( 0, 255, 0.2 + Math.max(0, alignment) * 0.8 )
-
-            ctx.fillStyle = "rgb(0, " + greenValue + ", 0)"
+            
+            var greenValue = lerp( 0, 255, 0.2 + 0.8 * alignment)
+            ctx.fillStyle = "rgb(0, " + Math.round(greenValue) + ", 0)"
 
             this.faces[i].draw()
         }
@@ -242,13 +237,12 @@ var edges = [
 
 var faces = [
     new Face(nodes[0], nodes[1], nodes[2], nodes[3]),
-    new Face(nodes[4], nodes[5], nodes[6], nodes[7]),
+    new Face(nodes[4], nodes[7], nodes[6], nodes[5]),
     new Face(nodes[0], nodes[4], nodes[5], nodes[1]),
-    new Face(nodes[1], nodes[2], nodes[6], nodes[5]),
+    new Face(nodes[1], nodes[5], nodes[6], nodes[2]),
     new Face(nodes[0], nodes[3], nodes[7], nodes[4]),
-    new Face(nodes[2], nodes[3], nodes[7], nodes[6])
+    new Face(nodes[2], nodes[6], nodes[7], nodes[3])
 ]
-
 
 ctx.translate(canvas.width/2, canvas.width/2)
 
